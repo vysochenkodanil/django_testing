@@ -17,7 +17,10 @@ def test_anonymous_cannot_post_comment(client, news):
 
 @pytest.mark.django_db
 def test_authenticated_can_post_comment(author_client, news):
-    """Проверяет, что авторизованный пользователь может отправить комментарий."""
+    """
+    Проверяет, что авторизованный пользователь
+    может отправить комментарий.
+    """
     news_detail_url = reverse('news:detail', args=[news.pk])
     form_data = FORM_DATA_TEMPLATE.copy()
     response = author_client.post(news_detail_url, data=form_data)
@@ -28,7 +31,10 @@ def test_authenticated_can_post_comment(author_client, news):
 
 @pytest.mark.django_db
 def test_prohibited_words_in_comment(author_client, news):
-    """Проверяет, что комментарий с запрещёнными словами не будет опубликован."""
+    """
+    Проверяет, что комментарий с
+    запрещёнными словами не будет опубликован.
+    """
     news_detail_url = reverse('news:detail', args=[news.pk])
     form_data = FORM_DATA_TEMPLATE.copy()
     form_data['text'] = 'Ты редиска!'
