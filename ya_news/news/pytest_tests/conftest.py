@@ -1,7 +1,7 @@
 import pytest
 from django.test.client import Client
 from django.utils import timezone
-from news.models import News, Comment
+from news.models import Comment, News
 
 
 @pytest.fixture
@@ -43,6 +43,7 @@ def comment(author, news):
         author=author,
         text='Comment text'
     )
+
 
 @pytest.fixture
 def news_list():

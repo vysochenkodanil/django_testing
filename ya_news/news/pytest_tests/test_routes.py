@@ -1,10 +1,10 @@
-import pytest
 from http import HTTPStatus
+
+import pytest
 from django.urls import reverse
-from pytest_lazyfixture import lazy_fixture
 from news.forms import CommentForm
 from news.models import Comment
-
+from pytest_lazyfixture import lazy_fixture
 
 CLIENT = lazy_fixture('client')
 AUTHOR_CLIENT = lazy_fixture('author_client')
@@ -25,7 +25,8 @@ NOT_AUTHOR_CLIENT = lazy_fixture('not_author_client')
         ('news:delete', AUTHOR_CLIENT, HTTPStatus.OK),
     ),
 )
-def test_pages_availability_for_users(url_name, user, expected_status, news, comment):
+def test_pages_availability_for_users(
+        url_name, user, expected_status, news, comment):
     """Проверяет доступность страниц для разных пользователей."""
     if url_name in ('news:detail', 'news:edit', 'news:delete'):
         if url_name == 'news:detail':
@@ -83,4 +84,3 @@ def test_comment_creation(author_client, news):
     response = author_client.post(url, data={'text': 'New Comment'})
     assert response.status_code == HTTPStatus.FOUND
     assert Comment.objects.filter(news=news, text='New Comment').exists()
-    

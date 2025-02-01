@@ -9,7 +9,8 @@ def test_news_count_on_homepage(client, news_list):
     news_list(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
     response = client.get(reverse('news:home'))
     assert response.status_code == 200
-    assert response.context['object_list'].count() == settings.NEWS_COUNT_ON_HOME_PAGE
+    assert response.context['object_list'].count(
+    ) == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db

@@ -1,6 +1,7 @@
 from http import HTTPStatus
-from django.urls import reverse
+
 import pytest
+from django.urls import reverse
 from news.models import Comment
 
 FORM_DATA_TEMPLATE = {'text': 'Comment text'}
@@ -32,7 +33,7 @@ def test_prohibited_words_in_comment(author_client, news):
     form_data = FORM_DATA_TEMPLATE.copy()
     form_data['text'] = 'Ты редиска!'
     response = author_client.post(news_detail_url, data=form_data)
-    
+
     assert response.status_code == 200
     assert len(Comment.objects.filter(text=form_data['text'])) == 0
     assert 'Не ругайтесь!' in response.context['form'].errors['text']
@@ -45,7 +46,7 @@ def test_user_can_edit_own_comment(author_client, comment):
     form_data = FORM_DATA_TEMPLATE.copy()
     form_data['text'] = 'Updated comment text'
     response = author_client.post(comment_edit_url, data=form_data)
-    
+
     assert response.status_code == 302
     comment.refresh_from_db()
     assert comment.text == form_data['text']
@@ -58,7 +59,7 @@ def test_user_cannot_edit_others_comment(not_author_client, comment):
     form_data = FORM_DATA_TEMPLATE.copy()
     form_data['text'] = 'Hacked comment text'
     response = not_author_client.post(comment_edit_url, data=form_data)
-    
+
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert Comment.objects.filter(pk=comment.id).exists()
 
@@ -68,7 +69,7 @@ def test_user_can_delete_own_comment(author_client, comment):
     """Проверяет, что пользователь может удалять свои комментарии."""
     comment_delete_url = reverse('news:delete', kwargs={'pk': comment.pk})
     response = author_client.post(comment_delete_url)
-    
+
     assert response.status_code == 302
     assert not Comment.objects.filter(pk=comment.pk).exists()
 
@@ -78,6 +79,6 @@ def test_user_cant_delete_comment(not_author_client, comment):
     """Проверяет, что пользователь не может удалять чужие комментарии."""
     comment_delete_url = reverse('news:delete', kwargs={'pk': comment.pk})
     response = not_author_client.post(comment_delete_url)
-    
+
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert Comment.objects.filter(pk=comment.id).exists()
