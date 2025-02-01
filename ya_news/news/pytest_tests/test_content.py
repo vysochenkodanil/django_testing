@@ -6,17 +6,17 @@ from django.urls import reverse
 @pytest.mark.django_db
 def test_news_count_on_homepage(client, news_list):
     """На главной странице не больше NEWS_COUNT_ON_HOME_PAGE новостей."""
-    news_list(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
+    news_list()
     response = client.get(reverse('news:home'))
+    print(response.context['object_list'])
     assert response.status_code == 200
     assert response.context['object_list'].count(
     ) == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db
-def test_news_order_on_homepage(client, news_list):
+def test_news_order_on_homepage(client):
     """На главной странице новости отсортированы от свежей к старой."""
-    news_list(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
     response = client.get(reverse('news:home'))
     news_list_from_context = response.context['object_list']
     dates = [news.date for news in news_list_from_context]

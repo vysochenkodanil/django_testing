@@ -1,4 +1,5 @@
 import pytest
+from django.conf import settings
 from django.test.client import Client
 from django.utils import timezone
 from news.models import Comment, News
@@ -47,7 +48,7 @@ def comment(author, news):
 
 @pytest.fixture
 def news_list():
-    def create_news(count):
+    def create_news(count=settings.NEWS_COUNT_ON_HOME_PAGE + 1):
         return News.objects.bulk_create([
             News(
                 title=f'News {i}',

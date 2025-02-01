@@ -59,7 +59,7 @@ class TestDetailPage(BaseTest):
         self.client.force_login(self.author)
         self.assertTrue(Note.objects.filter(slug=self.note.slug).exists())
         response = self.client.get(self.detail_url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertIn('note', response.context)
         note = response.context['note']
         self.assertEqual(note.title, self.note.title)
@@ -74,7 +74,7 @@ class TestNotesListPage(BaseTest):
         """Проверяет, что заметка автора присутствует в списке."""
         self.client.force_login(self.author)
         response = self.client.get(self.LIST_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertIn('object_list', response.context)
         self.assertIn(self.note, response.context['object_list'])
 
@@ -127,7 +127,7 @@ class TestAccess(BaseTest):
         for url in urls:
             with self.subTest(url=url):
                 response = self.client.get(url)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
 
 class TestNotePermissions(BaseTest):
@@ -144,8 +144,8 @@ class TestNotePermissions(BaseTest):
         self.client.force_login(self.author)
         response_edit = self.client.get(self.edit_url)
         response_delete = self.client.get(self.delete_url)
-        self.assertEqual(response_edit.status_code, 200)
-        self.assertEqual(response_delete.status_code, 200)
+        self.assertEqual(response_edit.status_code, HTTPStatus.OK.value)
+        self.assertEqual(response_delete.status_code, HTTPStatus.OK.value)
 
     def test_another_user_cannot_edit_or_delete(self):
         """
@@ -155,19 +155,22 @@ class TestNotePermissions(BaseTest):
         self.client.force_login(self.another_user)
         response_edit = self.client.get(self.edit_url)
         response_delete = self.client.get(self.delete_url)
-        self.assertEqual(response_edit.status_code, 404)
-        self.assertEqual(response_delete.status_code, 404)
+        self.assertEqual(response_edit.status_code, HTTPStatus.NOT_FOUND.value)
+        self.assertEqual(
+            response_delete.status_code,
+            HTTPStatus.NOT_FOUND.value
+        )
 
     def test_add_page_contains_form(self):
         """Проверяет, что страница добавления заметки содержит форму."""
         self.client.force_login(self.author)
         response = self.client.get(self.ADD_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertIn('form', response.context)
 
     def test_edit_page_contains_form(self):
         """Проверяет, что страница редактирования заметки содержит форму."""
         self.client.force_login(self.author)
         response = self.client.get(self.edit_url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertIn('form', response.context)

@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -51,7 +53,7 @@ class TestHomePage(BaseTest):
     def test_notes_order(self):
         """Проверяет, что главная страница возвращает статус 200."""
         response = self.client.get(self.HOME_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
 
 class TestDetailPage(BaseTest):
@@ -62,7 +64,7 @@ class TestDetailPage(BaseTest):
         response = self.client.get(self.detail_url)
         self.client.force_login(self.author)
         response = self.client.get(self.detail_url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
         self.assertIn('note', response.context)
 
 
@@ -80,8 +82,8 @@ class TestNotePermissions(BaseTest):
         self.client.force_login(self.author)
         response_edit = self.client.get(self.edit_url)
         response_delete = self.client.get(self.delete_url)
-        self.assertEqual(response_edit.status_code, 200)
-        self.assertEqual(response_delete.status_code, 200)
+        self.assertEqual(response_edit.status_code, HTTPStatus.OK.value)
+        self.assertEqual(response_delete.status_code, HTTPStatus.OK.value)
 
     def test_another_user_cannot_edit_or_delete(self):
         """
@@ -91,8 +93,10 @@ class TestNotePermissions(BaseTest):
         self.client.force_login(self.another_user)
         response_edit = self.client.get(self.edit_url)
         response_delete = self.client.get(self.delete_url)
-        self.assertEqual(response_edit.status_code, 404)
-        self.assertEqual(response_delete.status_code, 404)
+        self.assertEqual(response_edit.status_code, HTTPStatus.NOT_FOUND.value)
+        self.assertEqual(
+            response_delete.status_code, HTTPStatus.NOT_FOUND.value
+        )
 
 
 class TestPublicPages(BaseTest):
@@ -101,17 +105,17 @@ class TestPublicPages(BaseTest):
     def test_registration_page_accessible(self):
         """Проверяет доступность страницы регистрации."""
         response = self.client.get(reverse('users:signup'))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
     def test_login_page_accessible(self):
         """Проверяет доступность страницы входа."""
         response = self.client.get(reverse('users:login'))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
     def test_logout_page_accessible(self):
         """Проверяет доступность страницы выхода."""
         response = self.client.get(reverse('users:logout'))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
 
 class TestAnonymousRedirect(BaseTest):
@@ -178,7 +182,7 @@ class TestAuthenticatedAccess(BaseTest):
         """
         self.client.force_login(self.author)
         response = self.client.get(self.LIST_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
     def test_authenticated_user_can_access_add_page(self):
         """
@@ -187,7 +191,7 @@ class TestAuthenticatedAccess(BaseTest):
         """
         self.client.force_login(self.author)
         response = self.client.get(self.ADD_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
     def test_authenticated_user_can_access_success_page(self):
         """
@@ -196,4 +200,4 @@ class TestAuthenticatedAccess(BaseTest):
         """
         self.client.force_login(self.author)
         response = self.client.get(self.SUCCESS_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
