@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import pytest
 from django.conf import settings
 from django.urls import reverse
@@ -9,7 +11,7 @@ def test_news_count_on_homepage(client, news_list):
     news_list()
     response = client.get(reverse('news:home'))
     print(response.context['object_list'])
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK.value
     assert response.context['object_list'].count(
     ) == settings.NEWS_COUNT_ON_HOME_PAGE
 
