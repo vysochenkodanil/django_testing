@@ -1,6 +1,9 @@
+from http import HTTPStatus
+
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth import get_user_model
+
 from notes.models import Note
 
 User = get_user_model()
@@ -35,7 +38,7 @@ class TestHomePage(BaseTest):
     def test_home_page_status_code(self):
         """Проверяет, что главная страница возвращает статус 200."""
         response = self.client.get(self.HOME_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
     def test_home_page_template(self):
         """

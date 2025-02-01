@@ -1,7 +1,6 @@
 import pytest
 from django.test.client import Client
-from django.urls import reverse
-
+from django.utils import timezone
 from news.models import News, Comment
 
 
@@ -45,56 +44,28 @@ def comment(author, news):
         text='Comment text'
     )
 
-
 @pytest.fixture
-def form_data():
-    return {
-        'text': 'Comment text'
-    }
-
-
-@pytest.fixture
-def news_detail(news):
-    return reverse('news:detail', args=[news.pk])
-
-
-@pytest.fixture
-def news_home():
-    return reverse('news:home')
+def news_list():
+    def create_news(count):
+        return News.objects.bulk_create([
+            News(
+                title=f'News {i}',
+                text='News text',
+                date=timezone.now() - timezone.timedelta(days=i)
+            )
+            for i in range(count)
+        ])
+    return create_news
 
 
 @pytest.fixture
-def comment_edit(comment):
-    return reverse('news:edit', kwargs={'pk': comment.pk})
-
-
-@pytest.fixture
-def comment_delete(comment):
-    return reverse('news:delete', kwargs={'pk': comment.pk})
-
-
-@pytest.fixture
-def redirect_url_edit_comment(comment, login):
-    url = reverse('news:edit', args=[comment.pk])
-    return f'{login}?next={url}'
-
-
-@pytest.fixture
-def redirect_url_delete_comment(comment, login):
-    url = reverse('news:delete', args=[comment.pk])
-    return f'{login}?next={url}'
-
-
-@pytest.fixture
-def login():
-    return reverse('users:login')
-
-
-@pytest.fixture
-def logout():
-    return reverse('users:logout')
-
-
-@pytest.fixture
-def signup():
-    return reverse('users:signup')
+def comments(news, author):
+    return Comment.objects.bulk_create([
+        Comment(
+            news=news,
+            author=author,
+            text=f'Comment {i}',
+            created=timezone.now() - timezone.timedelta(minutes=i)
+        )
+        for i in range(5)
+    ])

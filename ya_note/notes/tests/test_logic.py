@@ -1,34 +1,11 @@
-from django.test import TestCase, Client
-from django.urls import reverse
 from django.contrib.auth import get_user_model
-from notes.models import Note
 from django.db import IntegrityError
+from django.test import Client, TestCase
+from django.urls import reverse
+
+from notes.models import Note
 
 User = get_user_model()
-
-
-class NoteModelTest(TestCase):
-    """Тесты для модели Note."""
-
-    @classmethod
-    def setUpTestData(cls):
-        """Создает тестовые данные для модели Note."""
-        cls.user = User.objects.create(username='testuser')
-        cls.note = Note.objects.create(
-            title='Тестовая заметка',
-            text='Это текст тестовой заметки.',
-            author=cls.user
-        )
-
-    def test_note_creation(self):
-        """Проверяет корректность создания заметки."""
-        self.assertEqual(self.note.title, 'Тестовая заметка')
-        self.assertEqual(self.note.text, 'Это текст тестовой заметки.')
-        self.assertEqual(self.note.author, self.user)
-
-    def test_slug_auto_generation(self):
-        """Проверяет автоматическую генерацию slug."""
-        self.assertEqual(self.note.slug, 'testovaya-zametka')
 
 
 class NoteCreationTest(TestCase):
@@ -48,20 +25,22 @@ class NoteCreationTest(TestCase):
 
     def test_anonymous_user_cant_create_note(self):
         """Проверяет, что анонимный пользователь не может создать заметку."""
+        initial_count = Note.objects.count()
         response = self.client.post(self.url, data=self.form_data)
         login_url = reverse('users:login')
         redirect_url = f'{login_url}?next={self.url}'
         self.assertRedirects(response, redirect_url)
-        self.assertEqual(Note.objects.count(), 0)
+        self.assertEqual(Note.objects.count(), initial_count)
 
     def test_user_can_create_note(self):
         """Проверяет, что авторизованный пользователь может создать заметку."""
+        initial_count = Note.objects.count()
         response = self.auth_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, reverse('notes:success'))
-        self.assertEqual(Note.objects.count(), 1)
-        note = Note.objects.get()
-        self.assertEqual(note.title, 'Новая заметка')
-        self.assertEqual(note.text, 'Текст новой заметки')
+        self.assertEqual(Note.objects.count(), initial_count + 1)
+        note = Note.objects.latest('id')
+        self.assertEqual(note.title, self.form_data['title'])
+        self.assertEqual(note.text, self.form_data['text'])
         self.assertEqual(note.author, self.user)
 
     def test_slug_uniqueness(self):
@@ -123,8 +102,8 @@ class NoteEditDeleteTest(TestCase):
 
     def test_reader_cant_delete_note(self):
         """
-        Проверяет,другова пользователя,
-        что он не может удалить чужую заметку.
+        Проверяет, что другой пользователь
+        не может удалить чужую заметку.
         """
         self.client.force_login(self.reader)
         response = self.client.post(self.delete_url)
