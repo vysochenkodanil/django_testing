@@ -59,6 +59,7 @@ def news_list():
         for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
     )
 
+
 @pytest.fixture
 def comments(news, author):
     return Comment.objects.bulk_create([
