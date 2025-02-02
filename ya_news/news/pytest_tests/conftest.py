@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
+from django.utils import timezone
 import pytest
 from django.conf import settings
 from django.test.client import Client
@@ -54,7 +55,7 @@ def news_list():
     News.objects.bulk_create(
         News(title=f'News number {index}',
              text='News text',
-             date=datetime.today() - timedelta(days=index)
+             date=timezone.now() - timedelta(days=index)
              )
         for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
     )
