@@ -2,9 +2,10 @@ from http import HTTPStatus
 
 import pytest
 from django.urls import reverse
+from pytest_lazyfixture import lazy_fixture
+
 from news.forms import CommentForm
 from news.models import Comment
-from pytest_lazyfixture import lazy_fixture
 
 CLIENT = lazy_fixture('client')
 AUTHOR_CLIENT = lazy_fixture('author_client')
